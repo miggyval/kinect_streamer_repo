@@ -1,0 +1,7 @@
+<launch>
+  <arg name="verbose" default="false"/>
+  <arg name="dir" default=""/>
+  <node pkg="kinect_streamer_bin" name="kinect_recorder_multi"
+    type="kinect_recorder" output="screen" args="-d $(arg dir) -s 004530264447 -v $(arg verbose)">
+  </node>
+</launch>

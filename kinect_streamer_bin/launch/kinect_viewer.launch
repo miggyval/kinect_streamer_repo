@@ -1,0 +1,6 @@
+<launch>
+  <arg name="verbose" default="true"/>
+  <node pkg="kinect_streamer_bin" name="kinect_viewer_multi"
+    type="kinect_viewer" output="screen" args="-d /home/medrobotics/.ros/kinect_recordings/2022-03-29-17-21-36-132-920-911">
+  </node>
+</launch>

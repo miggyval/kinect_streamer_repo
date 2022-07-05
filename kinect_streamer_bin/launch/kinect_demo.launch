@@ -1,0 +1,13 @@
+<!-- Run the aruco_detect node -->
+<launch>
+  <!-- namespace for camera input -->
+  <arg name="verbose" default="false"/>
+  
+  <node pkg="kinect_streamer_bin" name="kinect_camera_dual"
+    type="kinect_camera" output="screen" args="-s 097377233947 -v=$(arg verbose)">
+  </node>
+  <node pkg="rviz" name="rviz"
+    type="rviz" output="screen" args="-d $(find kinect_streamer_bin)/launch/kinect.rviz">
+  </node>
+  
+</launch>
