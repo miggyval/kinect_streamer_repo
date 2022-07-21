@@ -1,5 +1,7 @@
 #include <kinect_ros/kinect_ros.hpp>
 
+#define SENSOR_OFFSET 0.06175
+
 KinectROS::KinectROS(int argc, char** argv) {
     ros::init(argc, argv, "kinect_camera");
 }
@@ -130,7 +132,9 @@ void KinectROS::send_raw_images(std::string serial, cv::Mat img_color, cv::Mat i
     sensor_msgs::CameraInfo info_camera_ir = manager_irs[serial]->getCameraInfo();
     ros::Time now = ros::Time::now();
     info_camera_color.header.stamp = now;
+    info_camera_color.header.frame_id = std::string("frame_color_") + serial;
     info_camera_ir.header.stamp = now;
+    info_camera_ir.header.frame_id = std::string("frame_ir_") + serial;
     pub_camera_info_colors[serial].publish(info_camera_color);
     pub_camera_info_irs[serial].publish(info_camera_ir);
 }
@@ -144,11 +148,12 @@ void KinectROS::send_raw_images(std::string serial, cv::Mat img_color, cv::Mat i
  */
 void KinectROS::send_cloud(std::string serial, uint8_t* cloud_data, int size) {
     ros::Time now = ros::Time::now();
+    
     static tf::TransformBroadcaster br;
     tf::Transform transform;
     transform.setIdentity();
-    transform.setRotation(tf::createQuaternionFromRPY(-3.141592 / 2, 0, 0));
-    br.sendTransform(tf::StampedTransform(transform, now, "world", std::string("frame_") + serial));
+    transform.setOrigin(tf::Vector3(-SENSOR_OFFSET, 0.0, 0.0) );
+    br.sendTransform(tf::StampedTransform(transform, now, std::string("frame_color_") + serial, std::string("frame_ir_") + serial));
 
     pcl::PointCloud<pcl::PointXYZRGB> cloud;
     cloud.points.reserve(DEPTH_W * DEPTH_H);
@@ -156,7 +161,7 @@ void KinectROS::send_cloud(std::string serial, uint8_t* cloud_data, int size) {
     const int arr_size = DEPTH_W * DEPTH_H * sizeof(float);
     std::unique_ptr<sensor_msgs::PointCloud2> cloud_msg = std::make_unique<sensor_msgs::PointCloud2>();
     pcl::toROSMsg(cloud, *cloud_msg);
-    cloud_msg->header.frame_id = std::string("frame_") + serial;
+    cloud_msg->header.frame_id = std::string("frame_ir_") + serial;
     cloud_msg->height = 1;
     cloud_msg->width = DEPTH_W * DEPTH_H;
     cloud_msg->is_dense = false;
@@ -167,3 +172,4 @@ void KinectROS::send_cloud(std::string serial, uint8_t* cloud_data, int size) {
     cloud_msg->header.stamp = now;
     pub_clouds[serial].publish(*cloud_msg);
 }
+

@@ -15,7 +15,7 @@ __global__ void getPointXYZ(const float* D, const uint32_t* R, uint8_t* cloud_da
         if (!isnan(depth_val) && depth_val > 0.001) {
             uint8_t* ptr = cloud_data + i * point_step;
             /* x-value */
-            *(float*)(ptr + 0) = -(col + 0.5 - cx) * fx * depth_val;
+            *(float*)(ptr + 0) = (col + 0.5 - cx) * fx * depth_val;
             /* y-value */
             *(float*)(ptr + 4) = (row + 0.5 - cy) * fy * depth_val;
             /* z-value */
